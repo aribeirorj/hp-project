@@ -22,7 +22,7 @@ export function StaffPage() {
   const items = useMemo(
     () =>
       (queryStaffPage.data ?? [])
-        .filter((a) => a.house?.toLowerCase() === house.toLowerCase())
+        .filter((item) => item.house?.toLowerCase() === house.toLowerCase())
         .slice()
         .sort((a, b) => a.name.localeCompare(b.name)),
     [house, queryStaffPage.data]

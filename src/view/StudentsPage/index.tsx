@@ -22,7 +22,7 @@ export function StudentsPage() {
   const items = useMemo(
     () =>
       (queryStudentPage.data ?? [])
-        .filter((a) => a.house?.toLowerCase() === house.toLowerCase())
+        .filter((item) => item.house?.toLowerCase() === house.toLowerCase())
         .slice()
         .sort((a, b) => a.name.localeCompare(b.name)),
     [house, queryStudentPage.data]

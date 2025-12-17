@@ -55,7 +55,7 @@ export function CharactersPage() {
                 ? "bg-accent text-zinc-950 ring-accent"
                 : "bg-zinc-900 text-zinc-200 ring-zinc-800 hover:bg-zinc-800",
             ].join(" ")}
-            onClick={() => setOnlyFavs((v) => !v)}
+            onClick={() => setOnlyFavs((prev) => !prev)}
             type="button"
           >
             {onlyFavs ? "Showing favorites" : "Show favorites"}

@@ -15,7 +15,7 @@ export function SpellsPage() {
   const filtered = useMemo(() => {
     const s = search.toLowerCase().trim();
     return (querySpellsPage.data ?? [])
-      .filter((sp) => sp.name.toLowerCase().includes(s))
+      .filter((item) => item.name.toLowerCase().includes(s))
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [querySpellsPage.data, search]);
