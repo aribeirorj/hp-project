@@ -7,18 +7,25 @@ import { LoadingState } from "../../components/LoadingState";
 import { ErrorState } from "../../components/ErrorState";
 import { EmptyState } from "../../components/EmptyState";
 import { getFavorites, toggleFavorite } from "../../state/preferences";
+import type { OutletContext } from "../../types";
+import { useOutletContext } from "react-router-dom";
 
 export function StaffPage() {
+  const { house } = useOutletContext<OutletContext>();
   const [favorites, setFavorites] = useState<string[]>(getFavorites());
 
-  const q = useQuery({
+  const queryStaffPage = useQuery({
     queryKey: ["characters", "staff"],
     queryFn: hpApi.staff,
   });
 
   const items = useMemo(
-    () => (q.data ?? []).slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [q.data]
+    () =>
+      (queryStaffPage.data ?? [])
+        .filter((a) => a.house?.toLowerCase() === house.toLowerCase())
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [house, queryStaffPage.data]
   );
 
   return (
@@ -28,13 +35,21 @@ export function StaffPage() {
         <p className="mt-1 text-sm text-zinc-400">Hogwarts staff list.</p>
       </header>
 
-      {q.isLoading ? <LoadingState label="Loading staff..." /> : null}
-      {q.isError ? <ErrorState message={(q.error as Error).message} /> : null}
-      {!q.isLoading && !q.isError && items.length === 0 ? (
+      {queryStaffPage.isLoading ? (
+        <LoadingState label="Loading staff..." />
+      ) : null}
+      {queryStaffPage.isError ? (
+        <ErrorState message={(queryStaffPage.error as Error).message} />
+      ) : null}
+      {!queryStaffPage.isLoading &&
+      !queryStaffPage.isError &&
+      items.length === 0 ? (
         <EmptyState title="No staff found" />
       ) : null}
 
-      {!q.isLoading && !q.isError && items.length > 0 ? (
+      {!queryStaffPage.isLoading &&
+      !queryStaffPage.isError &&
+      items.length > 0 ? (
         <CharacterGrid
           items={items}
           favorites={favorites}

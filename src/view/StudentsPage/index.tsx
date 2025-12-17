@@ -7,18 +7,25 @@ import { LoadingState } from "../../components/LoadingState";
 import { ErrorState } from "../../components/ErrorState";
 import { EmptyState } from "../../components/EmptyState";
 import { getFavorites, toggleFavorite } from "../../state/preferences";
+import { useOutletContext } from "react-router-dom";
+import type { OutletContext } from "../../types";
 
 export function StudentsPage() {
   const [favorites, setFavorites] = useState<string[]>(getFavorites());
+  const { house } = useOutletContext<OutletContext>();
 
-  const q = useQuery({
+  const queryStudentPage = useQuery({
     queryKey: ["characters", "students"],
     queryFn: hpApi.students,
   });
 
   const items = useMemo(
-    () => (q.data ?? []).slice().sort((a, b) => a.name.localeCompare(b.name)),
-    [q.data]
+    () =>
+      (queryStudentPage.data ?? [])
+        .filter((a) => a.house?.toLowerCase() === house.toLowerCase())
+        .slice()
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [house, queryStudentPage.data]
   );
 
   return (
@@ -28,13 +35,21 @@ export function StudentsPage() {
         <p className="mt-1 text-sm text-zinc-400">Hogwarts students list.</p>
       </header>
 
-      {q.isLoading ? <LoadingState label="Loading students..." /> : null}
-      {q.isError ? <ErrorState message={(q.error as Error).message} /> : null}
-      {!q.isLoading && !q.isError && items.length === 0 ? (
+      {queryStudentPage.isLoading ? (
+        <LoadingState label="Loading students..." />
+      ) : null}
+      {queryStudentPage.isError ? (
+        <ErrorState message={(queryStudentPage.error as Error).message} />
+      ) : null}
+      {!queryStudentPage.isLoading &&
+      !queryStudentPage.isError &&
+      items.length === 0 ? (
         <EmptyState title="No students found" />
       ) : null}
 
-      {!q.isLoading && !q.isError && items.length > 0 ? (
+      {!queryStudentPage.isLoading &&
+      !queryStudentPage.isError &&
+      items.length > 0 ? (
         <CharacterGrid
           items={items}
           favorites={favorites}

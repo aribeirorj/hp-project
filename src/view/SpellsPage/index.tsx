@@ -7,18 +7,18 @@ import { useMemo, useState } from "react";
 export function SpellsPage() {
   const [search, setSearch] = useState("");
 
-  const q = useQuery({
+  const querySpellsPage = useQuery({
     queryKey: ["spells"],
     queryFn: hpApi.spells,
   });
 
   const filtered = useMemo(() => {
     const s = search.toLowerCase().trim();
-    return (q.data ?? [])
+    return (querySpellsPage.data ?? [])
       .filter((sp) => sp.name.toLowerCase().includes(s))
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [q.data, search]);
+  }, [querySpellsPage.data, search]);
 
   return (
     <div className="space-y-6">
@@ -38,10 +38,14 @@ export function SpellsPage() {
         />
       </header>
 
-      {q.isLoading ? <LoadingState label="Loading spells..." /> : null}
-      {q.isError ? <ErrorState message={(q.error as Error).message} /> : null}
+      {querySpellsPage.isLoading ? (
+        <LoadingState label="Loading spells..." />
+      ) : null}
+      {querySpellsPage.isError ? (
+        <ErrorState message={(querySpellsPage.error as Error).message} />
+      ) : null}
 
-      {!q.isLoading && !q.isError ? (
+      {!querySpellsPage.isLoading && !querySpellsPage.isError ? (
         <div className="grid gap-3">
           {filtered.map((sp) => (
             <div

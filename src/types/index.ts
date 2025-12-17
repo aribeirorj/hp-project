@@ -32,3 +32,8 @@ export type Spell = {
   name: string;
   description: string;
 };
+
+export type OutletContext = {
+  house: House;
+  setHouse: (house: House) => void;
+};

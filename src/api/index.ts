@@ -1,4 +1,4 @@
-import type { Character, Spell } from "../types/index";
+import type { Character, Spell, House } from "../types/index";
 
 const BASE_URL = "https://hp-api.onrender.com";
 
@@ -12,8 +12,7 @@ export const hpApi = {
   characters: () => http<Character[]>("/api/characters"),
   students: () => http<Character[]>("/api/characters/students"),
   staff: () => http<Character[]>("/api/characters/staff"),
-
-  // API frequently returns an array with one item
   characterById: (id: string) => http<Character[]>(`/api/character/${id}`),
   spells: () => http<Spell[]>("/api/spells"),
+  house: (house: string) => http<House[]>(`/api/characters/house/${house}`),
 };

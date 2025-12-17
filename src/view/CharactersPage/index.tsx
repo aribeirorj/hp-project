@@ -1,32 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { hpApi } from "../../api";
-import type { Character } from "../../types";
+import type { Character, OutletContext } from "../../types";
 import { useMemo, useState } from "react";
 import { CharacterGrid } from "../../components/CharacterGrid";
 import { LoadingState } from "../../components/LoadingState";
 import { ErrorState } from "../../components/ErrorState";
 import { EmptyState } from "../../components/EmptyState";
 import { getFavorites, toggleFavorite } from "../../state/preferences";
+import { useOutletContext } from "react-router-dom";
 
 export function CharactersPage() {
+  const { house } = useOutletContext<OutletContext>();
   const [favorites, setFavorites] = useState<string[]>(getFavorites());
   const [onlyFavs, setOnlyFavs] = useState(false);
   const [search, setSearch] = useState("");
 
-  const q = useQuery({
+  const queryCharacterPage = useQuery({
     queryKey: ["characters", "all"],
     queryFn: hpApi.characters,
   });
 
   const filtered = useMemo(() => {
-    const items = (q.data ?? []) as Character[];
+    const items = (queryCharacterPage.data ?? []) as Character[];
     const favSet = new Set(favorites);
 
     return items
       .filter((c) => (onlyFavs ? favSet.has(c.id) : true))
       .filter((c) => c.name.toLowerCase().includes(search.toLowerCase().trim()))
+      .filter((c) => c.house?.toLowerCase() === house.toLowerCase())
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [q.data, favorites, onlyFavs, search]);
+  }, [queryCharacterPage.data, favorites, onlyFavs, search, house]);
 
   return (
     <div className="space-y-6">
@@ -60,17 +63,25 @@ export function CharactersPage() {
         </div>
       </header>
 
-      {q.isLoading ? <LoadingState label="Loading characters..." /> : null}
-      {q.isError ? <ErrorState message={(q.error as Error).message} /> : null}
+      {queryCharacterPage.isLoading ? (
+        <LoadingState label="Loading characters..." />
+      ) : null}
+      {queryCharacterPage.isError ? (
+        <ErrorState message={(queryCharacterPage.error as Error).message} />
+      ) : null}
 
-      {!q.isLoading && !q.isError && filtered.length === 0 ? (
+      {!queryCharacterPage.isLoading &&
+      !queryCharacterPage.isError &&
+      filtered.length === 0 ? (
         <EmptyState
           title="No results"
           hint="Try changing your search or favorites filter."
         />
       ) : null}
 
-      {!q.isLoading && !q.isError && filtered.length > 0 ? (
+      {!queryCharacterPage.isLoading &&
+      !queryCharacterPage.isError &&
+      filtered.length > 0 ? (
         <CharacterGrid
           items={filtered}
           favorites={favorites}
